@@ -275,6 +275,7 @@ describe Savon::SOAP::XML do
       end
 
       it "should namespace the default elements" do
+      pending("on the ignore-element-form-default branch this feature is disabled")
         xml.element_form_default = :qualified
         xml.namespace_identifier = :wsdl
 
