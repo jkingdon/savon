@@ -1,4 +1,4 @@
-require "rexml/document"
+require "nokogiri"
 
 require "savon/wsdl/request"
 require "savon/wsdl/parser"
@@ -90,7 +90,7 @@ module Savon
       # Executes an HTTP GET request to retrieve a remote WSDL document.
       def http_request
         request.url = @document
-        Request.new(request).response.body
+        Request.execute(request).body
       end
 
       # Reads the WSDL document from a local file.
@@ -101,8 +101,8 @@ module Savon
       # Parses the WSDL document and returns the <tt>Savon::WSDL::Parser</tt>.
       def parser
         @parser ||= begin
-          parser = Parser.new
-          REXML::Document.parse_stream document, parser
+          parser = Parser.new(Nokogiri::XML(document))
+          parser.parse
           parser
         end
       end

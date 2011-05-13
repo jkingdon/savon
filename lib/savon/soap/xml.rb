@@ -1,5 +1,5 @@
 require "builder"
-require "crack/xml"
+require "nori"
 require "gyoku"
 
 require "savon/soap"
@@ -19,31 +19,6 @@ module Savon
         "xmlns:xsd" => "http://www.w3.org/2001/XMLSchema",
         "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance"
       }
-
-      # Converts the given SOAP response +value+ (XML or Hash) into a normalized Hash.
-      def self.to_hash(value)
-        value = parse value unless value.kind_of? Hash
-        value.find_soap_body
-      end
-
-      # Converts a given SOAP response +xml+ to a Hash.
-      def self.parse(xml)
-        Crack::XML.parse(xml)
-      end
-
-      # Expects a SOAP response XML or Hash, traverses it for a given +path+ of Hash keys
-      # and returns the value as an Array. Defaults to return an empty Array in case the
-      # path does not exist or returns nil.
-      def self.to_array(object, *path)
-        hash = object.kind_of?(Hash) ? object : to_hash(object)
-
-        result = path.inject hash do |memo, key|
-          return [] unless memo[key]
-          memo[key]
-        end
-
-        result.kind_of?(Array) ? result.compact : [result].compact
-      end
 
       # Accepts an +endpoint+, an +input+ tag and a SOAP +body+.
       def initialize(endpoint = nil, input = nil, body = nil)
@@ -74,7 +49,7 @@ module Savon
 
       # Returns the SOAP +header+. Defaults to an empty Hash.
       def header
-        @header ||= {}
+        @header ||= Savon.soap_header.nil? ? {} : Savon.soap_header
       end
 
       # Sets the SOAP envelope namespace.
